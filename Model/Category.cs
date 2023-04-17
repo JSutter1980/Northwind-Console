@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace Northwind_Console_Net06.Model
 {
@@ -11,6 +12,7 @@ namespace Northwind_Console_Net06.Model
         }
 
         public int CategoryId { get; set; }
+        [Required(ErrorMessage = "YO - Enter the name!")]
         public string CategoryName { get; set; }
         public string Description { get; set; }
 
