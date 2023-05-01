@@ -22,6 +22,10 @@ try
         Console.WriteLine("2) Add Category");
         Console.WriteLine("3) Display Category and related products");
         Console.WriteLine("4) Display all Categories and their related products");
+        Console.WriteLine("5) Display Products");
+        Console.WriteLine("6) Add Product");
+        Console.WriteLine("7) Edit Product");
+        //Console.WriteLine();
         Console.WriteLine("\"q\" to quit");
         choice = Console.ReadLine();
         Console.Clear();
@@ -107,6 +111,94 @@ try
                 }
             }
         }
+        else if (choice == "5")
+        {
+            Console.WriteLine($"Would you like to see:\n 1.All Products\n 2.Display Specific Product");
+            string selection = Console.ReadLine();
+
+            if(selection == "1")
+            {
+                 Console.WriteLine("Would you like to:\n 1.Display All Products?\n 2.Display Active Products\n3.Display Discontinued Products?");
+                 string answer = Console.ReadLine();
+            
+                if(answer == "1")
+                {
+
+                var query = db.Products.OrderBy(p => p.ProductId);
+
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine($"{query.Count()} records returned");
+                Console.ForegroundColor = ConsoleColor.Blue;
+
+                foreach (var item in query)
+                {
+                    Console.WriteLine($"{item.ProductId}. {item.ProductName}");
+                }
+
+                Console.ForegroundColor = ConsoleColor.White;
+
+                }
+                else if (answer == "2")
+                {
+                    var query = db.Products.Where(p => p.Discontinued == false);
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.WriteLine($"{query.Count()} records returned");
+                    Console.ForegroundColor = ConsoleColor.Blue;
+                foreach (var item in query)
+                    {
+                Console.WriteLine($"{item.ProductId}. {item.ProductName}");
+                    }
+
+                    Console.ForegroundColor = ConsoleColor.White;
+                }
+                else if (answer == "3")
+                {
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    var query = db.Products.Where(p => p.Discontinued);
+                    Console.WriteLine($"{query.Count()} records returned");
+                    Console.ForegroundColor = ConsoleColor.Blue;
+                foreach (var item in query)
+                    {
+                Console.WriteLine($"{item.ProductId}. {item.ProductName}");
+                    }
+
+                    Console.ForegroundColor = ConsoleColor.White;
+                }
+        }
+
+            else if (selection == "2")
+            {
+
+                Console.WriteLine("Name of Product?:");
+                string name = Console.ReadLine();
+
+                var query = db.Products.Where(p => p.ProductName.Contains(name));
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine($"{query.Count()} records returned");
+                Console.ForegroundColor = ConsoleColor.Blue;
+                foreach (var item in query)
+            {
+                Console.WriteLine($"{item.ProductId}. {item.ProductName}");
+            }
+
+            Console.ForegroundColor = ConsoleColor.White;
+
+            }
+            
+
+        }
+        else if (choice == "6")
+        {
+
+            Product product = AddProduct(db, logger);
+                if (product != null)
+                {
+                db.AddProduct(product);
+                logger.Info("Product added - {name}", product.ProductName);
+                }
+            
+        }
+            
         Console.WriteLine();
 
     } while (choice.ToLower() != "q");
@@ -116,4 +208,36 @@ catch (Exception ex)
     logger.Error(ex.Message);
 }
 
+Product AddProduct(NWConsole_23_JPSContext db, Logger logger)
+{
+    Product product = new Product();
+    Console.WriteLine("Enter the new Product name");
+    product.ProductName = Console.ReadLine();
+
+    ValidationContext context = new ValidationContext(product, null, null);
+    List<ValidationResult> results = new List<ValidationResult>();
+
+    var isValid = Validator.TryValidateObject(product, context, results, true);
+    if (isValid)
+    {
+                // prevent duplicate blog names
+        if (db.Products.Any(p => p.ProductName == product.ProductName)) {
+            // generate error
+             results.Add(new ValidationResult("Product exists", new string[] { "Name" }));
+        } else {
+            return product;
+        }
+
+         foreach (var result in results)
+         {
+            logger.Error($"{result.MemberNames.First()} : {result.ErrorMessage}");
+         }
+       
+    }
+    
+    return null;
+}
+
 logger.Info("Program ended");
+
+

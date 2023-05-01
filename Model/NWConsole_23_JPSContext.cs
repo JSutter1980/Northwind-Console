@@ -29,16 +29,36 @@ namespace Northwind_Console_Net06.Model
         public virtual DbSet<Supplier> Suppliers { get; set; }
         public virtual DbSet<Territory> Territories { get; set; }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            if (!optionsBuilder.IsConfigured)
-            {
-                IConfiguration config = new ConfigurationBuilder()
-                    .AddJsonFile("appsettings.json", true, true)
-                    .Build();
-                optionsBuilder.UseSqlServer(@config["Northwind:ConnectionString"]);
-            }
-        }
+        public void AddProduct(Product product)
+    {
+        this.Products.Add(product);
+        this.SaveChanges();
+    }
+
+    public void DeleteProduct(Product product)
+    {
+        this.Products.Remove(product);
+        this.SaveChanges();
+    }
+
+    public void EditProduct(Product UpdatedProduct)
+    {
+        Product product = this.Products.Find(UpdatedProduct.ProductId);
+        product.ProductName = UpdatedProduct.ProductName;
+        this.SaveChanges();
+    }
+
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+            var configuration =  new ConfigurationBuilder()
+            .AddJsonFile($"appsettings.json");
+
+        var config = configuration.Build();
+        optionsBuilder.UseSqlServer(@config["Northwind:ConnectionString"]);
+    }
+
+        
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

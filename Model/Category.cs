@@ -12,7 +12,7 @@ namespace Northwind_Console_Net06.Model
         }
 
         public int CategoryId { get; set; }
-        [Required(ErrorMessage = "YO - Enter the name!")]
+        [Required(ErrorMessage = "Category Name Required!")]
         public string CategoryName { get; set; }
         public string Description { get; set; }
 
