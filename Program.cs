@@ -30,7 +30,7 @@ try
         logger.Info($"Option {choice} selected");
         if (choice == "1")
         {
-            Console.WriteLine("Would you like to:\n1. Display All Categories\n2. Display Category and related products\n3.Display all Categories and their related products");
+            Console.WriteLine("Would you like to:\n1. Display All Categories\n2. Display Category and related products\n3. Display all Categories and their related products\n4. Display Specific Category");
             string answer = Console.ReadLine();
 
             if (answer == "1")
@@ -86,6 +86,25 @@ try
 
             }
 
+            else if (answer == "4")
+
+            {
+
+                Console.WriteLine("Enter Category Name:");
+                string name = Console.ReadLine();
+
+               var query = db.Categories.Where(c => c.CategoryName.Contains(name)).Include("Products").OrderBy(c => c.CategoryName);
+                foreach (var item in query)
+                {
+                    Console.WriteLine($"{item.CategoryName}");
+                    foreach (Product p in item.Products)
+                    {
+                        Console.WriteLine($"\t{p.ProductName}");
+                    }
+                }
+
+            }
+
         }
 
         else if (choice == "2")
@@ -96,7 +115,7 @@ try
             Console.ForegroundColor = ConsoleColor.DarkRed;
             foreach (var item in query)
             {
-                Console.WriteLine($"{item.CategoryId}) {item.CategoryName}");
+                Console.WriteLine($"{item.CategoryId}. {item.CategoryName}");
             }
             Console.ForegroundColor = ConsoleColor.White;
             int id = int.Parse(Console.ReadLine());
@@ -106,7 +125,7 @@ try
             Console.WriteLine($"{category.CategoryName} - {category.Description}");
 
         }
-        
+
         else if (choice == "3")
         {
             Console.WriteLine($"Would you like to see:\n 1.All Products\n 2.Display Specific Product");
