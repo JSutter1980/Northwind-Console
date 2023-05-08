@@ -226,8 +226,28 @@ catch (Exception ex)
 Product AddProduct(NWConsole_23_JPSContext db, Logger logger)
 {
     Product product = new Product();
-    Console.WriteLine("Enter the new Product name");
+    Console.WriteLine("Enter the new Product name:");
     product.ProductName = Console.ReadLine();
+    Console.WriteLine("Enter the Supplier ID:");
+    product.SupplierId = Convert.ToInt32(Console.ReadLine());
+    Console.WriteLine("Enter the Category ID:");
+    product.CategoryId = Convert.ToInt32(Console.ReadLine());
+    Console.WriteLine("Enter the Quantity per Unit:");
+    product.QuantityPerUnit = Console.ReadLine();
+    Console.WriteLine("Enter the Unit Price:");
+    product.UnitPrice = Convert.ToDecimal(Console.ReadLine());
+    Console.WriteLine("Enter the number of Units in Stock:");
+    product.UnitsInStock = Convert.ToInt16(Console.ReadLine());
+    Console.WriteLine("Enter the number of Units on Order:");
+    product.UnitsOnOrder = Convert.ToInt16(Console.ReadLine());
+    Console.WriteLine("Enter the ReOrder level:");
+    product.ReorderLevel = Convert.ToInt16(Console.ReadLine());
+    Console.WriteLine("Is the product discontinued?(Y/N):");
+    string discon = Console.ReadLine();
+    if(discon == "y")
+    {
+        product.Discontinued = true;
+    }
 
     ValidationContext context = new ValidationContext(product, null, null);
     List<ValidationResult> results = new List<ValidationResult>();
