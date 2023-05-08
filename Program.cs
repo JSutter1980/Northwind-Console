@@ -109,20 +109,12 @@ try
 
         else if (choice == "2")
         {
-            var query = db.Categories.OrderBy(p => p.CategoryId);
-
-            Console.WriteLine("Select the category whose products you want to display:");
-            Console.ForegroundColor = ConsoleColor.DarkRed;
-            foreach (var item in query)
-            {
-                Console.WriteLine($"{item.CategoryId}. {item.CategoryName}");
-            }
-            Console.ForegroundColor = ConsoleColor.White;
-            int id = int.Parse(Console.ReadLine());
-            Console.Clear();
-            logger.Info($"CategoryId {id} selected");
-            Category category = db.Categories.FirstOrDefault(c => c.CategoryId == id);
-            Console.WriteLine($"{category.CategoryName} - {category.Description}");
+             Category category = AddCategory(db, logger);
+             if (category != null)
+             {
+                 db.Add(category);
+                 logger.Info("Category added - {name}", category.CategoryName);
+             }
 
         }
 
@@ -213,6 +205,23 @@ try
             }
 
         }
+        else if (choice == "7")
+        {
+            Console.WriteLine("Choose the Product to edit:");
+            var product = GetProduct(db, logger);
+            if (product != null)
+            {
+                
+                Product UpdatedProduct = EditProduct(db, logger);
+                if (UpdatedProduct != null)
+                {
+                    UpdatedProduct.ProductId = product.ProductId;
+                    db.EditProduct(UpdatedProduct);
+                    logger.Info($"Product (id: {product.ProductId}) updated");
+                }
+            }
+        }
+
 
         Console.WriteLine();
 
@@ -255,7 +264,7 @@ Product AddProduct(NWConsole_23_JPSContext db, Logger logger)
     var isValid = Validator.TryValidateObject(product, context, results, true);
     if (isValid)
     {
-        // prevent duplicate blog names
+        
         if (db.Products.Any(p => p.ProductName == product.ProductName))
         {
             // generate error
@@ -276,6 +285,158 @@ Product AddProduct(NWConsole_23_JPSContext db, Logger logger)
     return null;
 }
 
-logger.Info("Program ended");
+Category AddCategory(NWConsole_23_JPSContext db, Logger logger)
+{
+    Category category = new Category();
+    Console.WriteLine("What is the name of the new Category:");
+    category.CategoryName = Console.ReadLine();
+    Console.WriteLine("What is the description of the Category:");
+    category.Description = Console.ReadLine();
+    
+
+    ValidationContext context = new ValidationContext(category, null, null);
+    List<ValidationResult> results = new List<ValidationResult>();
+
+    var isValid = Validator.TryValidateObject(category, context, results, true);
+    if (isValid)
+    {
+      
+        if (db.Categories.Any(c => c.CategoryName == category.CategoryName))
+        {
+           
+            results.Add(new ValidationResult("Category exists", new string[] { "Name" }));
+        }
+        else
+        {
+            return category;
+        }
+
+        foreach (var result in results)
+        {
+            logger.Error($"{result.MemberNames.First()} : {result.ErrorMessage}");
+        }
+
+    }
+
+    return null;
+}
+
+ 
+
+    
+
+     
+ logger.Info("Program ended");
+
+ static Product GetProduct(NWConsole_23_JPSContext db, Logger logger)
+{
+    
+    var products = db.Products.OrderBy(p => p.ProductId);
+    foreach (Product p in products)
+    {
+        Console.WriteLine($"{p.ProductId}: {p.ProductName}");
+    }
+    if (int.TryParse(Console.ReadLine(), out int ProductId))
+    {
+        Product product = db.Products.FirstOrDefault(p => p.ProductId == ProductId);
+        if (product != null)
+        {
+            return product;
+        }
+    }
+    logger.Error("Invalid Product Id");
+    return null;
+}
+
+static Product EditProduct(NWConsole_23_JPSContext db, Logger logger)
+{
+    Product product = new Product();
+    Console.WriteLine("What would you like to edit?");
+    Console.WriteLine("1. Product Name");
+    Console.WriteLine("2. Supplier ID");
+    Console.WriteLine("3. Category ID");
+    Console.WriteLine("4. Quantity per Unit");
+    Console.WriteLine("5. Price per Unit");
+    Console.WriteLine("6. Units in Stock");
+    Console.WriteLine("7. Units on Order");
+    Console.WriteLine("8. ReOrder Level");
+    Console.WriteLine("9. Discontinued Status");
+    string answer = Console.ReadLine();
+
+    if(answer == "1")
+    {
+        Console.WriteLine("What is the new Product Name?");
+        product.ProductName = Console.ReadLine();
+    }
+
+    else if (answer == "2")
+    {
+        Console.WriteLine("What is the new Supplier ID?");
+        product.SupplierId = Convert.ToInt32(Console.ReadLine());
+    }
+    else if (answer == "3")
+    {
+        Console.WriteLine("What is the new Category ID?");
+        product.CategoryId = Convert.ToInt32(Console.ReadLine());
+    }
+    else if (answer == "4")
+    {
+        Console.WriteLine("What is the new Quantity per Unit?");
+        product.QuantityPerUnit = Console.ReadLine();
+    }
+    else if (answer == "5")
+    {
+        Console.WriteLine("What is the new Unit Price");
+        product.UnitPrice = Convert.ToDecimal(Console.ReadLine());
+    }
+    else if (answer == "6")
+    {
+        Console.WriteLine("How many Units in Stock?");
+        product.UnitsInStock = Convert.ToInt16(Console.ReadLine());
+    }
+    else if (answer == "7")
+    {
+        Console.WriteLine("How many Units on Order?");
+        product.UnitsOnOrder = Convert.ToInt16(Console.ReadLine());
+    }
+    else if (answer == "8")
+    {
+        Console.WriteLine("What is the new ReOrder Level?");
+        product.ReorderLevel = Convert.ToInt16(Console.ReadLine());
+    }
+    else if (answer == "9")
+    {
+        Console.WriteLine("Is the Product discontinued? (Y/N)");
+        string discon = Console.ReadLine();
+    if(discon == "y")
+    {
+        product.Discontinued = true;
+    }
+    }
+    
+
+    ValidationContext context = new ValidationContext(product, null, null);
+    List<ValidationResult> results = new List<ValidationResult>();
+
+    var isValid = Validator.TryValidateObject(product, context, results, true);
+    if (isValid)
+    {
+            
+        if (db.Products.Any(p => p.ProductName == product.ProductName)) {
+          
+             results.Add(new ValidationResult("Product name exists", new string[] { "Name" }));
+        } else {
+            return product;
+        }
+
+         foreach (var result in results)
+         {
+            logger.Error($"{result.MemberNames.First()} : {result.ErrorMessage}");
+         }
+       
+    }
+    
+    return null;
+}
 
 
