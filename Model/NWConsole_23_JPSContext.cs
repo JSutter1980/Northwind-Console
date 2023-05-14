@@ -35,9 +35,9 @@ namespace Northwind_Console_Net06.Model
         this.SaveChanges();
     }
 
-    public void DeleteProduct(Product product)
+    public void AddCategory(Category category)
     {
-        this.Products.Remove(product);
+        this.Categories.Add(category);
         this.SaveChanges();
     }
 

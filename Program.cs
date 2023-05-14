@@ -112,7 +112,7 @@ try
              Category category = AddCategory(db, logger);
              if (category != null)
              {
-                 db.Add(category);
+                 db.AddCategory(category);
                  logger.Info("Category added - {name}", category.CategoryName);
              }
 
@@ -241,8 +241,7 @@ try
                 }
             }
         }
-
-
+        
         Console.WriteLine();
 
     } while (choice.ToLower() != "q");
@@ -395,7 +394,7 @@ static Category EditCategory(NWConsole_23_JPSContext db, Logger logger)
 
     Console.WriteLine("What is the new Category Name?");
     category.CategoryName = Console.ReadLine();
-    Console.WriteLine("What is the new Discription?");
+    Console.WriteLine("What is the new Description?");
     category.Description = Console.ReadLine();
     ValidationContext context = new ValidationContext(category, null, null);
     List<ValidationResult> results = new List<ValidationResult>();
